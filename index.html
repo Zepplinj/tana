@@ -68,6 +68,9 @@
     function create ()
     {
         
+        
+        
+        console.log('can i have twetny bucks au')
         let { width, height } = this.sys.game.canvas;
         bg = this.add.tileSprite(width/2, height/2, width, height,'sky');
         tana = this.physics.add.sprite(width/2,height/2,'tana').setScale(2);
@@ -213,7 +216,7 @@
 
 
         rand = Math.floor(Math.random() * (max - min + 1) + min)
-        console.log(rand)
+        // console.log(rand)
         
         if (rand == 2){
             get_random(ambient).play();
