@@ -1,0 +1,226 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>tana</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.23.0/dist/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    document.body.style.overflow = 'hidden';
+    var config = {
+        type: Phaser.AUTO,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        
+        physics: {
+        default: 'arcade',
+            arcade: {
+                gravity: { y: 0 },
+                debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    
+    function preload ()
+    {
+        this.load.spritesheet('tana','assets/t_sheet.png',{ frameWidth: 204, frameHeight: 255 })
+        this.load.image('sky', 'assets/background.jpg');
+
+
+        // screams cunt
+
+        this.load.audio('scream', ['assets\\audio\\Scream1.wav'])
+        this.load.audio('scream2', ['assets\\audio\\Scream2.wav' ])
+        this.load.audio('scream3', ['assets\\audio\\Scream3.wav'])
+
+        // laughs cunt
+
+        this.load.audio('laugh', ['assets\\audio\\Laugh1.wav'])
+        this.load.audio('laugh2', ['assets\\audio\\Laugh2.wav' ])
+        this.load.audio('laugh3', ['assets\\audio\\Laugh3.wav'])    
+
+        // blinking cunt
+        this.load.audio('blink', ['assets\\audio\\b1.mp3'])
+
+        // ambient cunt
+        this.load.audio('cough', ['assets\\audio\\cough.wav'])
+        this.load.audio('sniff', ['assets\\audio\\sniff.wav' ])
+        this.load.audio('sniff2', ['assets\\audio\\sniff2.wav'])   
+
+        // background music cunt
+        this.load.audio('song', ['assets\\audio\\game.wav'])   
+    }
+
+    function create ()
+    {
+        
+        let { width, height } = this.sys.game.canvas;
+        bg = this.add.tileSprite(width/2, height/2, width, height,'sky');
+        tana = this.physics.add.sprite(width/2,height/2,'tana').setScale(2);
+        tana.setVelocity(50, 50);
+        tana.setBounce(1)
+        lEye = this.add.rectangle(tana.x-45, tana.y-28, 50, 30, 0x6666ff, 0).setInteractive();
+        rEye = this.add.rectangle(tana.x+55, tana.y-28, 50, 30, 0x6666ff,0).setInteractive();
+        mouth = this.add.rectangle(tana.x+8, tana.y+85, 130, 50, 0x6666ff,0).setInteractive();
+        nose = this.add.rectangle( tana.x+6, tana.y, 50, 110, 0x6666ff,0).setInteractive();
+
+        song = this.sound.add('song',0.1),
+        song.setVolume(0.5)
+        song.loop = true; 
+        song.play();
+
+        screams = [
+            scream1 = this.sound.add('scream'),
+            scream2 = this.sound.add('scream2'),
+            scream3 = this.sound.add('scream3'),
+        ]
+        
+        laugh = [
+            laugh1 = this.sound.add('laugh'),
+            laugh2 = this.sound.add('laugh2'),
+            laugh3 = this.sound.add('laugh3'),
+        ]
+        ambient = [
+            cough = this.sound.add('cough'),
+            sniff = this.sound.add('sniff'),
+            sniff2 = this.sound.add('sniff2'),
+        ]
+        blink = this.sound.add('blink'),
+        touching = false;
+        xSpd = 0.3;
+        ySpd = 0.3;
+
+
+        function get_random (list) {
+            return list[Math.floor((Math.random()*list.length))];
+        }
+
+        tana.setCollideWorldBounds(true);
+        this.anims.create({
+            key: 'blink',
+            frames: this.anims.generateFrameNumbers('tana', { frames: [ 1] }),
+            frameRate: 10,
+        });
+
+        this.anims.create({
+            key: 'sad',
+            frames: this.anims.generateFrameNumbers('tana', { frames: [ 2 ] }),
+            frameRate: 10,
+        });
+
+        this.anims.create({
+            key: 'angry',
+            frames: this.anims.generateFrameNumbers('tana', { frames: [ 3 ]}),
+            frameRate: 10,
+        });
+        this.anims.create({
+            key: 'normal',
+            frames: this.anims.generateFrameNumbers('tana', { frames: [ 0 ]}),
+            frameRate: 10,
+        });
+        
+        lEye.on('pointerdown', function ()
+        {
+
+            tana.anims.play('blink', true);
+
+            blink.play();
+        });
+        rEye.on('pointerdown', function ()
+        {
+
+            tana.anims.play('blink', true);
+            blink.play();
+        });
+        nose.on('pointerdown', function ()
+        {
+
+            tana.anims.play('angry', true);
+
+            
+            
+            get_random(screams).play();
+        });
+        mouth.on('pointerdown', function ()
+        {
+
+            tana.anims.play('sad', true);
+            get_random(laugh).play();
+
+        }
+            
+        );
+        mouth.on('pointerup', () =>
+        {
+
+            touching = false;
+        });
+        lEye.on('pointerup', () =>
+        {
+
+            touching = false;
+        });
+        rEye.on('pointerup', () =>
+        {
+
+            touching = false;
+        });
+        nose.on('pointerup', () =>
+        {
+
+            touching = false;
+        });
+    }
+    
+    function update ()
+    { 
+        bg.tilePositionX += xSpd;
+        bg.tilePositionY += ySpd;
+        if (touching == false){
+            tana.anims.play('normal', true);
+            touching = true;
+        }
+
+        lEye.x  = tana.x-45
+        rEye.x  = tana.x+55
+        mouth.x = tana.x+8
+        nose.x  = tana.x+6
+
+        lEye.y  =   tana.y-28
+        rEye.y  = tana.y-28
+        mouth.y = tana.y+85
+        nose.y   = tana.y
+        max = 1
+        min = 200
+        
+        function get_random (list) {
+            return list[Math.floor((Math.random()*list.length))];
+        }
+
+
+        rand = Math.floor(Math.random() * (max - min + 1) + min)
+        console.log(rand)
+        
+        if (rand == 2){
+            get_random(ambient).play();
+        }
+    }
+
+</script>
+
+</body>
+</html>
